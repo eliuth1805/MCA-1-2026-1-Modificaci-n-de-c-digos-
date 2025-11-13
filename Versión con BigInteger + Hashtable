@@ -1,0 +1,49 @@
+
+/** Versión con BigInteger + Hashtable */
+
+import java.util.Hashtable;
+import java.math.BigInteger;
+
+public class FibonacciBigHash implements Runnable {
+
+    static Hashtable<BigInteger, BigInteger> mem = new Hashtable<>();
+
+    BigInteger n;
+    int id;
+
+    public FibonacciBigHash(int id, BigInteger n) {
+        this.id = id;
+        this.n = n;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Thread #" + id);
+        System.out.println("fibonacci(" + n + ") = " + fib(n));
+    }
+
+    static BigInteger fib(BigInteger x) {
+        if (mem.containsKey(x))
+            return mem.get(x);
+
+        BigInteger r = fib(x.subtract(BigInteger.ONE))
+                       .add(fib(x.subtract(BigInteger.TWO)));
+
+        mem.put(x, r);
+        return r;
+    }
+
+    public static void main(String[] args) {
+        mem.put(BigInteger.ZERO, BigInteger.ONE);
+        mem.put(BigInteger.ONE, BigInteger.ONE);
+
+        Thread[] t = new Thread[10];
+
+        for (int i = 0; i < 10; i++) {
+            long val = (long)(Math.random() * 200) + 1;
+            t[i] = new Thread(new FibonacciBigHash(i, BigInteger.valueOf(val)));
+        }
+
+        for (Thread th : t) th.start();
+    }
+}
